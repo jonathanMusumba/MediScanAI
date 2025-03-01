@@ -1,0 +1,233 @@
+<!-- templates/symptom_checker.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Symptom Checker</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <h1>Symptom Checker</h1>
+        
+        <div class="card">
+            <h2>Select Your Symptoms</h2>
+            <form id="symptomForm" class="symptom-form">
+                <div class="symptom-selector">
+                    <div class="common-symptoms">
+                        <h3>Common Symptoms</h3>
+                        <div class="symptom-grid">
+                            <label><input type="checkbox" name="symptoms" value="fever"> Fever</label>
+                            <label><input type="checkbox" name="symptoms" value="headache"> Headache</label>
+                            <label><input type="checkbox" name="symptoms" value="cough"> Cough</label>
+                            <label><input type="checkbox" name="symptoms" value="fatigue"> Fatigue</label>
+                            <label><input type="checkbox" name="symptoms" value="sore_throat"> Sore Throat</label>
+                            <label><input type="checkbox" name="symptoms" value="runny_nose"> Runny Nose</label>
+                            <label><input type="checkbox" name="symptoms" value="chills"> Chills</label>
+                            <label><input type="checkbox" name="symptoms" value="muscle_ache"> Muscle Aches</label>
+                            <label><input type="checkbox" name="symptoms" value="nausea"> Nausea</label>
+                            <label><input type="checkbox" name="symptoms" value="vomiting"> Vomiting</label>
+                            <label><input type="checkbox" name="symptoms" value="abdominal_pain"> Abdominal Pain</label>
+                            <label><input type="checkbox" name="symptoms" value="diarrhea"> Diarrhea</label>
+                        </div>
+                    </div>
+
+                    <div class="additional-symptoms">
+                        <h3>Additional Symptoms</h3>
+                        <div class="symptom-grid">
+                            <label><input type="checkbox" name="symptoms" value="sneezing"> Sneezing</label>
+                            <label><input type="checkbox" name="symptoms" value="weakness"> Weakness</label>
+                            <label><input type="checkbox" name="symptoms" value="constipation"> Constipation</label>
+                            <label><input type="checkbox" name="symptoms" value="urinary_pain"> Urinary Pain</label>
+                            <label><input type="checkbox" name="symptoms" value="frequent_urination"> Frequent Urination</label>
+                            <label><input type="checkbox" name="symptoms" value="cloudy_urine"> Cloudy Urine</label>
+                            <label><input type="checkbox" name="symptoms" value="strong_odor"> Strong Urine Odor</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">Analyze Symptoms</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="resultsContainer" class="card" style="display: none;">
+            <h2>Analysis Results</h2>
+            <div id="diagnosisResults" class="diagnosis-results"></div>
+        </div>
+
+        <div id="hospitalsContainer" class="card" style="display: none;">
+            <h2>Nearby Hospitals</h2>
+            <p>Based on your current location:</p>
+            <div id="locationStatus"></div>
+            <div id="nearbyHospitals" class="hospitals-list"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const symptomForm = document.getElementById('symptomForm');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const diagnosisResults = document.getElementById('diagnosisResults');
+            const hospitalsContainer = document.getElementById('hospitalsContainer');
+            const locationStatus = document.getElementById('locationStatus');
+            const nearbyHospitals = document.getElementById('nearbyHospitals');
+            
+            // Handle form submission
+            symptomForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get selected symptoms
+                const checkboxes = document.querySelectorAll('input[name="symptoms"]:checked');
+                const symptoms = Array.from(checkboxes).map(cb => cb.value);
+                
+                if (symptoms.length === 0) {
+                    alert('Please select at least one symptom');
+                    return;
+                }
+                
+                // Show loading indicator
+                diagnosisResults.innerHTML = '<div class="loading">Analyzing symptoms...</div>';
+                resultsContainer.style.display = 'block';
+                
+                // Call API to analyze symptoms
+                fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        symptoms: symptoms
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayResults(data.results);
+                        // After displaying results, try to find nearby hospitals
+                        findNearbyHospitals();
+                    } else {
+                        diagnosisResults.innerHTML = `<div class="error">${data.error || 'An error occurred'}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    diagnosisResults.innerHTML = '<div class="error">Failed to analyze symptoms. Please try again.</div>';
+                });
+            });
+            
+            // Display diagnosis results
+            function displayResults(results) {
+                if (!results || results.length === 0) {
+                    diagnosisResults.innerHTML = '<p>No matches found for the provided symptoms.</p>';
+                    return;
+                }
+                
+                let html = '<div class="results-list">';
+                
+                results.forEach((result, index) => {
+                    const matchClass = result.match_percent > 80 ? 'high-match' : 
+                                    result.match_percent > 50 ? 'medium-match' : 'low-match';
+                    
+                    html += `
+                        <div class="result-item ${matchClass}">
+                            <div class="result-header">
+                                <h3>${formatDiseaseName(result.disease)}</h3>
+                                <div class="match-percent">${Math.round(result.match_percent)}% Match</div>
+                            </div>
+                            <div class="result-details">
+                                <p><strong>Description:</strong> ${result.description}</p>
+                                <p><strong>Recommendation:</strong> ${result.recommendation}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                diagnosisResults.innerHTML = html;
+            }
+            
+            // Format disease name (convert snake_case to Title Case)
+            function formatDiseaseName(name) {
+                return name.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+            
+            // Find nearby hospitals based on user location
+            function findNearbyHospitals() {
+                locationStatus.innerHTML = 'Getting your location...';
+                hospitalsContainer.style.display = 'block';
+                
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            
+                            locationStatus.innerHTML = `Location found: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                            
+                            // Call API to find nearby hospitals
+                            fetch('/api/hospitals', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    latitude: latitude,
+                                    longitude: longitude,
+                                    maxDistance: 5.0  // 5km radius
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success && data.hospitals.length > 0) {
+                                    displayHospitals(data.hospitals);
+                                } else {
+                                    nearbyHospitals.innerHTML = '<p>No hospitals found within 5km of your location.</p>';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                nearbyHospitals.innerHTML = '<div class="error">Failed to find nearby hospitals. Please try again.</div>';
+                            });
+                        },
+                        function(error) {
+                            console.error('Geolocation error:', error);
+                            locationStatus.innerHTML = 'Error getting location. Please allow location access.';
+                        }
+                    );
+                } else {
+                    locationStatus.innerHTML = 'Geolocation is not supported by your browser.';
+                }
+            }
+            
+            // Display nearby hospitals
+            function displayHospitals(hospitals) {
+                let html = '<div class="hospitals-grid">';
+                
+                hospitals.forEach(hospital => {
+                    html += `
+                        <div class="hospital-card">
+                            <h3>${hospital.name}</h3>
+                            <p class="distance">${hospital.distance} km away</p>
+                            <p><strong>Address:</strong> ${hospital.address}</p>
+                            <p><strong>Phone:</strong> ${hospital.phone}</p>
+                            <p><strong>Specialties:</strong> ${hospital.specialties.join(', ')}</p>
+                            <a href="https://maps.google.com/?q=${hospital.latitude},${hospital.longitude}" 
+                               target="_blank" class="btn small">Open in Maps</a>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                nearbyHospitals.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Smart Health Diagnostics</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-heartbeat me-2"></i>MediScan AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    {% if logged_in %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('hospitals_list') }}">Hospitals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero bg-light py-5">
+        <div class="container px-4">
+            <div class="row gx-5 align-items-center">
+                <div class="col-lg-6">
+                    <div class="mb-5 mb-lg-0 text-center text-lg-start">
+                        <h1 class="display-4 fw-bold">Smart Health Diagnostics</h1>
+                        <p class="lead mb-4">
+                            MediScan AI uses advanced algorithms to analyze your symptoms and provide 
+                            potential diagnoses. Get quick access to medical information and find hospitals near you.
+                        </p>
+                        {% if not logged_in %}
+                        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-lg-start">
+                            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-sm-3">Get Started</a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg px-4">Login</a>
+                        </div>
+                        {% else %}
+                        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-lg-start">
+                            <a href="#symptom-checker" class="btn btn-primary btn-lg px-4 me-sm-3">Check Symptoms</a>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg px-4">Dashboard</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="{{ url_for('static', filename='img/1694956022027.svg') }}" alt="Medical illustration" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container px-4">
+            <div class="row gx-5">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="fw-bold">Key Features</h2>
+                    <p class="lead">Experience the power of AI in healthcare</p>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3">
+                                <i class="fas fa-stethoscope text-primary"></i>
+                            </div>
+                            <h3 class="card-title fw-bold">Symptom Analysis</h3>
+                            <p class="card-text">
+                                Analyze your symptoms using our advanced AI algorithm to get potential diagnoses and recommendations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3">
+                                <i class="fas fa-hospital text-primary"></i>
+                            </div>
+                            <h3 class="card-title fw-bold">Hospital Finder</h3>
+                            <p class="card-text">
+                                Locate nearby hospitals based on your location and get directions, contact information, and specialties.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3">
+                                <i class="fas fa-history text-primary"></i>
+                            </div>
+                            <h3 class="card-title fw-bold">Medical History</h3>
+                            <p class="card-text">
+                                Keep track of your diagnoses and medical history securely in your personal dashboard.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Symptom Checker Section (Visible when logged in) -->
+    <!-- Symptom Checker Section (Visible when logged in) -->
+{% if logged_in %}
+<section id="symptom-checker" class="py-5 bg-light">
+    <div class="container px-4">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h2 class="fw-bold">Symptom Checker</h2>
+                <p class="lead">Select your symptoms below for a quick analysis</p>
+            </div>
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <form id="symptom-form">
+                            <div class="mb-3">
+                                <h3>Common Symptoms</h3>
+                                <div class="symptom-grid row">
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="fever"> Fever</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="headache"> Headache</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="cough"> Cough</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="fatigue"> Fatigue</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="sore_throat"> Sore Throat</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="runny_nose"> Runny Nose</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="chills"> Chills</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="muscle_ache"> Muscle Aches</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="nausea"> Nausea</label>
+                                    </div>
+                                </div>
+                                
+                                <h3 class="mt-4">Additional Symptoms</h3>
+                                <div class="symptom-grid row">
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="vomiting"> Vomiting</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="abdominal_pain"> Abdominal Pain</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="diarrhea"> Diarrhea</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="constipation"> Constipation</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="urinary_pain"> Urinary Pain</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="frequent_urination"> Frequent Urination</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="cloudy_urine"> Cloudy Urine</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="strong_odor"> Strong Urine Odor</label>
+                                    </div>
+                                    <div class="col-md-4 col-6 mb-2">
+                                        <label class="d-block"><input type="checkbox" name="symptoms" value="weakness"> Weakness</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Analyze Symptoms</button>
+                            </div>
+                        </form>
+                        
+                        <div id="results-container" class="mt-4" style="display: none;">
+                            <h4 class="mb-3">Analysis Results:</h4>
+                            <div id="results-list" class="list-group mb-3">
+                                <!-- Results will be populated here -->
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button id="find-hospitals-btn" class="btn btn-outline-primary">Find Nearby Hospitals</button>
+                                <button id="save-diagnosis-btn" class="btn btn-success">Save Diagnosis</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    {% endif %}
+
+    <!-- How It Works Section -->
+    <section class="py-5">
+        <div class="container px-4">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-8 text-center mb-5">
+                    <h2 class="fw-bold">How It Works</h2>
+                    <p class="lead">A simple process to get health insights</p>
+                </div>
+            </div>
+            <div class="row gx-5">
+                <div class="col-md-4 text-center mb-5">
+                    <div class="step-icon d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">1</h2>
+                    </div>
+                    <h3>Enter Your Symptoms</h3>
+                    <p>Select the symptoms you're experiencing from our comprehensive list</p>
+                </div>
+                <div class="col-md-4 text-center mb-5">
+                    <div class="step-icon d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">2</h2>
+                    </div>
+                    <h3>Get Instant Analysis</h3>
+                    <p>Our AI algorithm analyzes your symptoms and provides potential diagnoses</p>
+                </div>
+                <div class="col-md-4 text-center mb-5">
+                    <div class="step-icon d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <h2 class="mb-0">3</h2>
+                    </div>
+                    <h3>Take Action</h3>
+                    <p>Find nearby hospitals, save your diagnosis, and track your health history</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disclaimer Section -->
+    <section class="py-5 bg-light">
+        <div class="container px-4">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Medical Disclaimer</h4>
+                        <p>MediScan AI is designed for informational purposes only and does not replace professional medical advice. Always consult with a qualified healthcare provider for proper diagnosis and treatment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 bg-dark">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-center text-lg-start text-white">
+                    <p class="mb-lg-0">&copy; 2025 MediScan AI. All rights reserved.</p>
+                </div>
+                <div class="col-lg-6 text-center text-lg-end">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    {% if logged_in %}
+    <!-- Symptom Checker Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const symptomForm = document.getElementById('symptom-form');
+            const resultsContainer = document.getElementById('results-container');
+            const resultsList = document.getElementById('results-list');
+            const findHospitalsBtn = document.getElementById('find-hospitals-btn');
+            const saveDiagnosisBtn = document.getElementById('save-diagnosis-btn');
+            
+            // Handle form submission
+            symptomForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get selected symptoms
+                const checkboxes = document.querySelectorAll('input[name="symptoms"]:checked');
+                const selectedSymptoms = Array.from(checkboxes).map(cb => cb.value);
+                
+                if (selectedSymptoms.length === 0) {
+                    alert('Please select at least one symptom');
+                    return;
+                }
+                
+                // Show loading indicator
+                resultsList.innerHTML = '<div class="list-group-item">Analyzing symptoms...</div>';
+                resultsContainer.style.display = 'block';
+                
+                // Call API to analyze symptoms
+                fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        symptoms: selectedSymptoms,
+                        username: '{{ username if username else "" }}'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Display results
+                        resultsList.innerHTML = '';
+                        
+                        if (data.results.length === 0) {
+                            resultsList.innerHTML = '<div class="list-group-item">No matching conditions found for these symptoms.</div>';
+                        } else {
+                            data.results.forEach(result => {
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'list-group-item';
+                                
+                                // Calculate confidence level class
+                                let confidenceClass = 'text-success';
+                                if (result.match_percent < 50) {
+                                    confidenceClass = 'text-danger';
+                                } else if (result.match_percent < 70) {
+                                    confidenceClass = 'text-warning';
+                                }
+                                
+                                resultItem.innerHTML = `
+                                    <h5 class="mb-1">${formatDiseaseName(result.disease)}</h5>
+                                    <p class="mb-1">Confidence: <span class="${confidenceClass}">${result.match_percent.toFixed(1)}%</span></p>
+                                    <p class="mb-1">${result.description}</p>
+                                    <div class="alert alert-info mt-2 mb-0">
+                                        <strong>Recommendation:</strong> ${result.recommendation}
+                                    </div>
+                                `;
+                                
+                                resultsList.appendChild(resultItem);
+                            });
+                        }
+                        
+                        // Store diagnosis ID for saving
+                        saveDiagnosisBtn.setAttribute('data-diagnosis-id', data.diagnosis_id || '');
+                    } else {
+                        resultsList.innerHTML = `<div class="list-group-item text-danger">Error analyzing symptoms: ${data.error || 'Unknown error'}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultsList.innerHTML = '<div class="list-group-item text-danger">Error analyzing symptoms. Please try again later.</div>';
+                });
+            });
+            
+            // Format disease name (convert snake_case to Title Case)
+            function formatDiseaseName(name) {
+                return name.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+            
+            // Handle find hospitals button
+            findHospitalsBtn.addEventListener('click', function() {
+                // Get user location and redirect to hospitals page
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        
+                        // Store location in localStorage for use on hospitals page
+                        localStorage.setItem('userLatitude', latitude);
+                        localStorage.setItem('userLongitude', longitude);
+                        
+                        // Redirect to hospitals page
+                        window.location.href = "{{ url_for('hospitals_list') }}";
+                    }, function() {
+                        alert('Unable to get your location. Please allow location access or go to the Hospitals page manually.');
+                    });
+                } else {
+                    alert('Geolocation is not supported by your browser. Please go to the Hospitals page manually.');
+                }
+            });
+            
+            // Handle save diagnosis button
+            saveDiagnosisBtn.addEventListener('click', function() {
+                const diagnosisId = this.getAttribute('data-diagnosis-id');
+                
+                if (!diagnosisId) {
+                    alert('Diagnosis already saved or cannot be saved.');
+                    return;
+                }
+                
+                alert('Diagnosis saved successfully! You can view it in your Dashboard.');
+                window.location.href = "{{ url_for('dashboard') }}";
+            });
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

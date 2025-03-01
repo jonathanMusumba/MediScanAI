@@ -1,0 +1,59 @@
+<!-- templates/hospital_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - {{ 'Edit' if hospital else 'Add' }} Hospital</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <h1>{{ 'Edit' if hospital else 'Add New' }} Hospital</h1>
+        
+        <div class="card">
+            <form method="post" action="{{ '/hospitals/edit/' + hospital.id|string if hospital else '/hospitals/add' }}">
+                <div class="form-group">
+                    <label for="name">Hospital Name</label>
+                    <input type="text" id="name" name="name" value="{{ hospital.name if hospital else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" value="{{ hospital.address if hospital else '' }}" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" id="latitude" name="latitude" step="0.000001" value="{{ hospital.latitude if hospital else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" id="longitude" name="longitude" step="0.000001" value="{{ hospital.longitude if hospital else '' }}" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" id="phone" name="phone" value="{{ hospital.phone if hospital else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specialties">Specialties (comma separated)</label>
+                    <input type="text" id="specialties" name="specialties" value="{{ hospital.specialties|join(',') if hospital else '' }}" required>
+                    <small class="form-help">For example: Cardiology, Neurology, Pediatrics</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">{{ 'Update' if hospital else 'Add' }} Hospital</button>
+                    <a href="/hospitals" class="btn secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

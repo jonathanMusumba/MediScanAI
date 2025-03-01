@@ -1,0 +1,33 @@
+<!-- templates/nav.html 
+<nav class="main-nav">
+    <div class="nav-brand">
+        <a href="/">MediScan AI</a>
+    </div>
+    <ul class="nav-menu">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/symptom-checker">Symptom Checker</a></li>
+        <li><a href="/hospitals">Hospitals</a></li>
+        <li><a href="/history">Medical History</a></li>
+        <li><a href="/profile">Profile</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</nav>
+-->
+<nav class="main-nav">
+    <div class="nav-logo">
+        <a href="/">MediScan AI</a>
+    </div>
+    <div class="nav-links">
+        {% if logged_in %}
+            <a href="/dashboard">Dashboard</a>
+            <a href="/symptom-checker">Check Symptoms</a>
+            <a href="/hospitals">Find Hospitals</a>
+            <li><a href="/history">Medical History</a></li>
+            <a href="/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </div>
+</nav>

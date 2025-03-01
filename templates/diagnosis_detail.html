@@ -1,0 +1,45 @@
+<!-- templates/diagnosis_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Diagnosis Details</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <div class="card">
+            <h1>Diagnosis Details</h1>
+            
+            <div class="diagnosis-info">
+                <p><strong>Date:</strong> {{ diagnosis.timestamp|datetime }}</p>
+                <p><strong>Symptoms Reported:</strong> {{ diagnosis.symptoms|join(', ') }}</p>
+            </div>
+            
+            <h2>Results</h2>
+            <div class="results-list">
+                {% for result in diagnosis.results %}
+                <div class="result-item {% if result.match_percent > 80 %}high-match{% elif result.match_percent > 50 %}medium-match{% else %}low-match{% endif %}">
+                    <div class="result-header">
+                        <h3>{{ result.disease|title|replace('_', ' ') }}</h3>
+                        <div class="match-percent">{{ result.match_percent|round }}% Match</div>
+                    </div>
+                    <div class="result-details">
+                        <p><strong>Description:</strong> {{ result.description }}</p>
+                        <p><strong>Recommendation:</strong> {{ result.recommendation }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="card-footer">
+                <a href="/history" class="btn secondary">Back to History</a>
+                <a href="/symptom-checker" class="btn primary">Check New Symptoms</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

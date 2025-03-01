@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #0d6efd, #198754);
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 30px;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            background-color: #e7f1ff;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .location-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .location-info i {
+            margin-right: 10px;
+            color: #0d6efd;
+        }
+        .symptom-checkbox {
+            margin-bottom: 10px;
+        }
+        #resultsCard {
+            display: none;
+            transition: all 0.3s ease;
+        }
+        #hospitalsCard {
+            display: none;
+        }
+        .hospital-item {
+            border-left: 4px solid #0d6efd;
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+        .hospital-name {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .hospital-distance {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .hospital-address {
+            font-size: 0.9rem;
+        }
+        .hospital-phone {
+            font-weight: 500;
+        }
+        #loadingSpinner {
+            display: none;
+        }
+        .health-data-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .health-data-col {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <div class="container">
+            <h1 class="text-center mb-2"><i class="bi bi-heart-pulse"></i> MediScan AI</h1>
+            <p class="text-center">Smart Disease Detection & Hospital Finder</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-lg-7 mb-4">
+                <!-- Personal Information Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person"></i> Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="fullName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="fullName" placeholder="Enter your full name">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="dateOfBirth">
+                            </div>
+                        </div>
+                        
+                        <div class="health-data-row">
+                            <div class="health-data-col">
+                                <label for="weight" class="form-label">Weight (kg)</label>
+                                <input type="number" class="form-control" id="weight" placeholder="e.g., 70">
+                            </div>
+                            <div class="health-data-col">
+                                <label for="height" class="form-label">Height (cm)</label>
+                                <input type="number" class="form-control" id="height" placeholder="e.g., 170">
+                            </div>
+                            <div class="health-data-col">
+                                <label for="bloodPressure" class="form-label">Blood Pressure</label>
+                                <input type="text" class="form-control" id="bloodPressure" placeholder="e.g., 120/80">
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="bloodType" class="form-label">Blood Type</label>
+                                <select class="form-select" id="bloodType">
+                                    <option value="">Select blood type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender">
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical History Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-journal-medical"></i> Medical History</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Existing Medical Conditions</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check symptom-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="diabetes">
+                                        <label class="form-check-label" for="diabetes">Diabetes</label>
+                                    </div>
+                                    <div class="form-check symptom-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="hypertension">
+                                        <label class="form-check-label" for="hypertension">Hypertension</label>
+                                    </div>
+                                    <div class="form-check symptom-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="asthma">
+                                        <label class="form-check-label" for="asthma">Asthma</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check symptom-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="heartDisease">
+                                        <label class="form-check-label" for="heartDisease">Heart Disease</label>
+                                    </div>
+                                    <div class="form-check symptom-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="thyroid">
+                                        <label class="form-check-label" for="thyroid">Thyroid Disorder</label>
+                                    </div>
+                                    <div class="form-check symptom-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="other">
+                                        <label class="form-check-label" for="other">Other</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="allergies" class="form-label">Allergies</label>
+                            <textarea class="form-control" id="allergies" rows="2" placeholder="List any allergies you have"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="medications" class="form-label">Current Medications</label>
+                            <textarea class="form-control" id="medications" rows="2" placeholder="List any medications you're currently taking"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Symptom Selection Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-clipboard2-pulse"></i> Current Symptoms</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Select all symptoms you are currently experiencing:</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="fever">
+                                    <label class="form-check-label" for="fever">Fever</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="chills">
+                                    <label class="form-check-label" for="chills">Chills</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="headache">
+                                    <label class="form-check-label" for="headache">Headache</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="nausea">
+                                    <label class="form-check-label" for="nausea">Nausea</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="vomiting">
+                                    <label class="form-check-label" for="vomiting">Vomiting</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="fatigue">
+                                    <label class="form-check-label" for="fatigue">Fatigue</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="muscleAche">
+                                    <label class="form-check-label" for="muscleAche">Muscle Ache</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="urinaryPain">
+                                    <label class="form-check-label" for="urinaryPain">Painful Urination</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="frequentUrination">
+                                    <label class="form-check-label" for="frequentUrination">Frequent Urination</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="cough">
+                                    <label class="form-check-label" for="cough">Cough</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="soreThroat">
+                                    <label class="form-check-label" for="soreThroat">Sore Throat</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="runnyNose">
+                                    <label class="form-check-label" for="runnyNose">Runny Nose</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="bodyRash">
+                                    <label class="form-check-label" for="bodyRash">Body Rash</label>
+                                </div>
+                                <div class="form-check symptom-checkbox">
+                                    <input class="form-check-input" type="checkbox" id="jointPain">
+                                    <label class="form-check-label" for="jointPain">Joint Pain</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="otherSymptoms" class="form-label">Other Symptoms</label>
+                            <textarea class="form-control" id="otherSymptoms" rows="2" placeholder="Describe any other symptoms you're experiencing"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="symptomsStarted" class="form-label">When did symptoms start?</label>
+                            <input type="date" class="form-control" id="symptomsStarted">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Your Location</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>We need your location to find nearby hospitals within 2km radius:</p>
+                        
+                        <div class="location-info" id="locationDisplay">
+                            <i class="bi bi-geo-fill"></i>
+                            <span>Location not detected yet</span>
+                        </div>
+                        
+                        <button id="getLocationBtn" class="btn btn-primary mb-3">
+                            <i class="bi bi-geo"></i> Detect My Location
+                        </button>
+                        
+                        <div class="mb-3">
+                            <label for="manualAddress" class="form-label">Or enter your address manually:</label>
+                            <textarea class="form-control" id="manualAddress" rows="2" placeholder="Enter your full address"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button id="analyzeBtn" class="btn btn-primary btn-lg">
+                        <span id="loadingSpinner" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Analyze Symptoms
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <!-- Results Card -->
+                <div id="resultsCard" class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-clipboard2-check"></i> Analysis Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <h4 id="diagnosisResult">Possible Diagnosis: <span class="text-primary">Influenza</span></h4>
+                        
+                        <div class="alert alert-info mt-3">
+                            <h6 class="alert-heading"><i class="bi bi-info-circle"></i> About this condition</h6>
+                            <p id="diseaseDescription">Influenza (flu) is a contagious respiratory illness caused by influenza viruses. It can cause mild to severe illness and can lead to hospitalization or death.</p>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <h6 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Important Note</h6>
+                            <p>This is an AI-assisted analysis and not a definitive medical diagnosis. Please consult a healthcare professional for proper medical advice.</p>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>Recommendation:</h6>
+                            <p id="recommendationText">Based on your symptoms, we recommend consulting a physician. Rest, stay hydrated, and monitor your symptoms.</p>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-2">
+                            <h6>Symptom Match Rate:</h6>
+                            <div class="progress">
+                                <div id="matchRateProgress" class="progress-bar progress-bar-striped" role="progressbar" style="width: 85%;" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6>Other possible conditions:</h6>
+                            <ul id="otherConditionsList">
+                                <li>Common Cold (65% match)</li>
+                                <li>Seasonal Allergies (40% match)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hospitals Card -->
+                <div id="hospitalsCard" class="card mt-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-hospital"></i> Nearby Hospitals</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Hospitals within 2km of your location:</p>
+                        
+                        <div id="hospitalsList">
+                            <div class="hospital-item">
+                                <div class="hospital-name">City General Hospital</div>
+                                <div class="hospital-distance">0.8 km away</div>
+                                <div class="hospital-address">123 Medical Avenue, City</div>
+                                <div class="hospital-phone">+1 (555) 123-4567</div>
+                                <a href="#" class="btn btn-sm btn-outline-primary mt-2">Get Directions</a>
+                            </div>
+                            
+                            <div class="hospital-item">
+                                <div class="hospital-name">Community Health Center</div>
+                                <div class="hospital-distance">1.3 km away</div>
+                                <div class="hospital-address">456 Wellness Street, City</div>
+                                <div class="hospital-phone">+1 (555) 987-6543</div>
+                                <a href="#" class="btn btn-sm btn-outline-primary mt-2">Get Directions</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>MediScan AI</h5>
+                    <p>A smart disease detection and hospital finder system. This application is for educational purposes only and should not replace professional medical advice.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-white">Terms of Use</a></li>
+                        <li><a href="#" class="text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Emergency</h5>
+                    <p>For medical emergencies, please call your local emergency number immediately.</p>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 MediScan AI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Current location coordinates
+        let userLat = null;
+        let userLng = null;
+
+        // Sample disease database (simplified)
+        const diseaseDatabase = {
+            "malaria": {
+                symptoms: ["fever", "chills", "headache", "fatigue", "muscleAche"],
+                description: "Malaria is a serious disease caused by a parasite that is transmitted via the bite of infected mosquitoes. Symptoms usually appear within 10-15 days after the infective bite.",
+                recommendation: "Seek immediate medical attention. Malaria requires proper diagnosis and treatment with antimalarial medications."
+            },
+            "typhoid": {
+                symptoms: ["fever", "headache", "abdominalpain", "fatigue", "constipation"],
+                description: "Typhoid fever is a bacterial infection caused by Salmonella typhi. It spreads through contaminated food and water or through close contact with someone who's infected.",
+                recommendation: "Consult a doctor for proper diagnosis and antibiotic treatment. Stay hydrated and get plenty of rest."
+            },
+            "influenza": {
+                symptoms: ["fever", "chills", "cough", "soreThroat", "runnyNose", "muscleAche", "fatigue", "headache"],
+                description: "Influenza (flu) is a contagious respiratory illness caused by influenza viruses. It can cause mild to severe illness and can lead to hospitalization or death in severe cases.",
+                recommendation: "Rest, stay hydrated, and take over-the-counter fever reducers. Consult a doctor if symptoms are severe or you're in a high-risk group."
+            },
+            "uti": {
+                symptoms: ["urinaryPain", "frequentUrination", "fever", "cloudyUrine", "strongOdor"],
+                description: "A urinary tract infection (UTI) is an infection in any part of the urinary system. Most infections involve the lower urinary tract — the bladder and the urethra.",
+                recommendation: "Consult a doctor for proper diagnosis and antibiotic treatment. Drink plenty of water to help flush out bacteria."
+            },
+            "common_cold": {
+                symptoms: ["runnyNose", "cough", "soreThroat", "mildHeadache", "sneezing"],
+                description: "The common cold is a viral infection of your nose and throat. It's usually harmless, although it might not feel that way.",
+                recommendation: "Rest, stay hydrated, and use over-the-counter cold medications for symptom relief. Consult a doctor if symptoms persist beyond 10 days."
+            }
+        };
+
+        // Sample hospital database (would be replaced with real API in production)
+        const hospitalDatabase = [
+            {
+                name: "City General Hospital",
+                lat: 0.007, // Will be added to user's lat
+                lng: 0.008, // Will be added to user's lng
+                address: "123 Medical Avenue, City",
+                phone: "+1 (555) 123-4567"
+            },
+            {
+                name: "Community Health Center",
+                lat: 0.012, // Will be added to user's lat
+                lng: -0.009, // Will be added to user's lng
+                address: "456 Wellness Street, City",
+                phone: "+1 (555) 987-6543"
+            },
+            {
+                name: "St. Mary's Medical Center",
+                lat: -0.015, // Will be added to user's lat
+                lng: 0.018, // Will be added to user's lng
+                address: "789 Care Boulevard, City",
+                phone: "+1 (555) 456-7890"
+            },
+            {
+                name: "Urgent Care Clinic",
+                lat: 0.019, // Will be added to user's lat
+                lng: 0.016, // Will be added to user's lng
+                address: "101 Emergency Drive, City",
+                phone: "+1 (555) 789-0123"
+            }
+        ];
+
+        // Calculate age from date of birth
+        function calculateAge(dateOfBirth) {
+            const dob = new Date(dateOfBirth);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        document.getElementById('getLocationBtn').addEventListener('click', function() {
+    if (navigator.geolocation) {
+        document.getElementById('locationDisplay').innerHTML = '<i class="bi bi-geo-fill"></i> <span>Detecting location...</span>';
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+                
+                document.getElementById('locationDisplay').innerHTML = 
+                    `<i class="bi bi-geo-fill"></i> <span>Location detected: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}</span>`;
+
+                // ✅ Send location data to Flask API
+                fetch('http://192.168.200.38:5001/api/hospitals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        latitude: userLat,
+                        longitude: userLng,
+                        maxDistance: 2.0
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("API Response:", data);
+                    if (data.success) {
+                        alert("Hospitals found: " + JSON.stringify(data.hospitals));
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+            },
+            function(error) {
+                document.getElementById('locationDisplay').innerHTML = 
+                    `<i class="bi bi-geo-fill"></i> <span>Error detecting location: ${error.message}</span>`;
+            }
+        );
+    } else {
+        document.getElementById('locationDisplay').innerHTML = 
+            '<i class="bi bi-geo-fill"></i> <span>Geolocation is not supported by this browser</span>';
+    }
+});
+
+        // Analyze symptoms
+        document.getElementById('analyzeBtn').addEventListener('click', function() {
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'inline-block';
+            
+            // Simulate processing time
+            setTimeout(function() {
+                // Get all checked symptoms
+                const checkedSymptoms = [];
+                const checkboxes = document.querySelectorAll('.symptom-checkbox input[type="checkbox"]');
+                
+                checkboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        checkedSymptoms.push(checkbox.id);
+                    }
+                });
+                
+                // Calculate best matching disease
+                let bestMatch = null;
+                let highestMatchRate = 0;
+                let otherMatches = [];
+                
+                for (const [disease, data] of Object.entries(diseaseDatabase)) {
+                    let matchCount = 0;
+                    
+                    // Count how many symptoms match
+                    data.symptoms.forEach(function(symptom) {
+                        if (checkedSymptoms.includes(symptom)) {
+                            matchCount++;
+                        }
+                    });
+                    
+                    // Calculate match percentage
+                    const matchRate = (matchCount / data.symptoms.length) * 100;
+                    
+                    if (matchRate > highestMatchRate) {
+                        if (bestMatch !== null) {
+                            // Add previous best match to other matches
+                            otherMatches.push({
+                                disease: bestMatch,
+                                matchRate: highestMatchRate
+                            });
+                        }
+                        
+                        bestMatch = disease;
+                        highestMatchRate = matchRate;
+                    } else if (matchRate > 30) {  // Only include relevant matches
+                        otherMatches.push({
+                            disease: disease,
+                            matchRate: matchRate
+                        });
+                    }
+                }
+                
+                // Sort other matches by match rate
+                otherMatches.sort((a, b) => b.matchRate - a.matchRate);
+                
+                // Update results card
+                if (bestMatch) {
+                    const diseaseData = diseaseDatabase[bestMatch];
+                    
+                    // Format disease name for display
+                    let diseaseName = bestMatch.replace('_', ' ');
+                    diseaseName = diseaseName.charAt(0).toUpperCase() + diseaseName.slice(1);
+                    
+                    document.getElementById('diagnosisResult').innerHTML = 
+                        `Possible Diagnosis: <span class="text-primary">${diseaseName}</span>`;
+                    
+                    document.getElementById('diseaseDescription').textContent = diseaseData.description;
+                    document.getElementById('recommendationText').textContent = diseaseData.recommendation;
+                    
+                    // Update match rate
+                    document.getElementById('matchRateProgress').style.width = `${highestMatchRate}%`;
+                    document.getElementById('matchRateProgress').textContent = `${Math.round(highestMatchRate)}%`;
+                    
+                    // Update other conditions list
+                    let otherConditionsHTML = '';
+                    otherMatches.slice(0, 3).forEach(function(match) {
+                        let name = match.disease.replace('_', ' ');
+                        name = name.charAt(0).toUpperCase() + name.slice(1);
+                        
+                        otherConditionsHTML += `<li>${name} (${Math.round(match.matchRate)}% match)</li>`;
+                    });
+                    
+                    document.getElementById('otherConditionsList').innerHTML = otherConditionsHTML;
+                } else {
+                    document.getElementById('diagnosisResult').innerHTML = 
+                        `<span class="text-danger">Insufficient symptoms to determine diagnosis</span>`;
+                    
+                    document.getElementById('diseaseDescription').textContent = 
+                        "Please select more symptoms for a more accurate analysis.";
+                    
+                    document.getElementById('recommendationText').textContent = 
+                        "If you're experiencing concerning symptoms, please consult a healthcare professional.";
+                    
+                    document.getElementById('matchRateProgress').style.width = "0%";
+                    document.getElementById('matchRateProgress').textContent = "0%";
+                    
+                    document.getElementById('otherConditionsList').innerHTML = "<li>No matches found</li>";
+                }
+                
+                // Find nearby hospitals
+                if (userLat && userLng) {
+                    // In a real app, this would use an actual geocoding/places API
+                    // Here we're simulating by adding offsets to the user's location
+                    let hospitalsHTML = '';
+                    let nearbyCount = 0;
+                    
+                    hospitalDatabase.forEach(function(hospital) {
+                        // Calculate simulated coordinates for the hospital
+                        const hospitalLat = userLat + hospital.lat;
+                        const hospitalLng = userLng + hospital.lng;
+                        
+                        // Calculate distance (simplified for demo)
+                        const distance = Math.sqrt(
+                            Math.pow(userLat - hospitalLat, 2) + 
+                            Math.pow(userLng - hospitalLng, 2)
+                        ) * 111; // Rough conversion to km
+                        
+                        // Check if within 2km radius
+                        if (distance <= 2) {
+                            hospitalsHTML += `
+                                <div class="hospital-item">
+                                    <div class="hospital-name">${hospital.name}</div>
+                                    <div class="hospital-distance">${distance.toFixed(1)} km away</div>
+                                    <div class="hospital-address">${hospital.address}</div>
+                                    <div class="hospital-phone">${hospital.phone}</div>
+                                    <a href="https://maps.google.com/?q=${hospitalLat},${hospitalLng}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Get Directions</a>
+                                </div>
+                            `;
+                            nearbyCount++;
+                        }
+                    });
+                    
+                    if (nearbyCount > 0) {
+                        document.getElementById('hospitalsList').innerHTML = hospitalsHTML;
+                    } else {
+                        document.getElementById('hospitalsList').innerHTML = 
+                            '<div class="alert alert-warning">No hospitals found within 2km of your location.</div>';
+                    }
+                } else {
+                    document.getElementById('hospitalsList').innerHTML = 
+                        '<div class="alert alert-warning">Please detect your location to find nearby hospitals.</div>';
+                }
+                
+                // Show results cards
+                document.getElementById('resultsCard').style.display = 'block';
+                document.getElementById('hospitalsCard').style.display = 'block';
+                
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+                
+                // Scroll to results
+                document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+            }, 2000); // Simulate 2 second processing time
+        });
+    </script>
+</body>
+</html>

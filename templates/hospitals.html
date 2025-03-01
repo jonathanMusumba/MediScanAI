@@ -1,0 +1,53 @@
+<!-- templates/hospitals.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Hospitals</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <h1>Hospitals Database</h1>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>Registered Hospitals</h2>
+                <a href="/hospitals/add" class="btn primary">Add New Hospital</a>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Specialties</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hospital in hospitals %}
+                    <tr>
+                        <td>{{ hospital.name }}</td>
+                        <td>{{ hospital.address }}</td>
+                        <td>{{ hospital.phone }}</td>
+                        <td>{{ hospital.specialties|join(', ') }}</td>
+                        <td class="actions">
+                            <a href="/hospitals/edit/{{ hospital.id }}" class="btn small">Edit</a>
+                            <form method="post" action="/hospitals/delete/{{ hospital.id }}" class="inline-form">
+                                <button type="submit" class="btn small danger" onclick="return confirm('Are you sure you want to delete this hospital?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

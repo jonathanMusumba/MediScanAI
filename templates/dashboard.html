@@ -1,0 +1,61 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <h1>Welcome, {{ user.username }}</h1>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="/symptom-checker" class="btn primary large">Check Symptoms</a>
+                    <a href="/hospitals" class="btn secondary large">Find Hospitals</a>
+                    <a href="/profile" class="btn secondary large">Update Profile</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Recent Medical History</h2>
+                {% if history %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Symptoms</th>
+                            <th>Diagnosis</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history[:5] %}
+                        <tr>
+                            <td>{{ item.timestamp|datetime }}</td>
+                            <td>{{ item.symptoms|join(', ') }}</td>
+                            <td>{{ item.results|join(', ') }}</td>
+                            <td>
+                                <a href="/diagnosis/{{ item.diagnosis_id }}" class="btn small">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="card-footer">
+                    <a href="/history" class="btn secondary small">View All History</a>
+                </div>
+                {% else %}
+                <p class="no-data">No medical history found. Start by checking your symptoms.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

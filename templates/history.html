@@ -1,0 +1,49 @@
+<!-- templates/history.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Medical History</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <h1>Medical History</h1>
+        
+        <div class="card">
+            {% if history %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Symptoms</th>
+                        <th>Diagnosis</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in history %}
+                    <tr>
+                        <td>{{ item.timestamp|datetime }}</td>
+                        <td>{{ item.symptoms|join(', ') }}</td>
+                        <td>{{ item.results|join(', ') }}</td>
+                        <td>
+                            <a href="/diagnosis/{{ item.diagnosis_id }}" class="btn small">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">No medical history found. Start by checking your symptoms.</p>
+            <div class="center-content">
+                <a href="/symptom-checker" class="btn primary">Check Symptoms</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

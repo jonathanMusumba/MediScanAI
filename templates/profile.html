@@ -1,0 +1,157 @@
+<!-- templates/profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan AI - Medical Profile</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'nav.html' %}
+        
+        <h1>Medical Profile</h1>
+        
+        <div class="card">
+            <form method="post" action="/profile" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" value="{{ user.profile.age if user.profile else '' }}">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">Select...</option>
+                            <option value="male" {% if user.profile and user.profile.gender == 'male' %}selected{% endif %}>Male</option>
+                            <option value="female" {% if user.profile and user.profile.gender == 'female' %}selected{% endif %}>Female</option>
+                            <option value="other" {% if user.profile and user.profile.gender == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" name="height" value="{{ user.profile.height if user.profile else '' }}">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" name="weight" step="0.1" value="{{ user.profile.weight if user.profile else '' }}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="blood_type">Blood Type</label>
+                    <select id="blood_type" name="blood_type">
+                        <option value="">Select...</option>
+                        <option value="A+" {% if user.profile and user.profile.blood_type == 'A+' %}selected{% endif %}>A+</option>
+                        <option value="A-" {% if user.profile and user.profile.blood_type == 'A-' %}selected{% endif %}>A-</option>
+                        <option value="B+" {% if user.profile and user.profile.blood_type == 'B+' %}selected{% endif %}>B+</option>
+                        <option value="B-" {% if user.profile and user.profile.blood_type == 'B-' %}selected{% endif %}>B-</option>
+                        <option value="AB+" {% if user.profile and user.profile.blood_type == 'AB+' %}selected{% endif %}>AB+</option>
+                        <option value="AB-" {% if user.profile and user.profile.blood_type == 'AB-' %}selected{% endif %}>AB-</option>
+                        <option value="O+" {% if user.profile and user.profile.blood_type == 'O+' %}selected{% endif %}>O+</option>
+                        <option value="O-" {% if user.profile and user.profile.blood_type == 'O-' %}selected{% endif %}>O-</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="profile_photo" class="form-label fw-bold">Profile Photo</label>
+                    
+                    <div class="d-flex align-items-center">
+                      {% if user.profile and user.profile.photo_path %}
+                      <div class="current-photo me-4">
+                        <img src="{{ url_for('static', filename=user.profile.photo_path) }}" 
+                             alt="Current profile photo" 
+                             class="img-thumbnail rounded-circle"
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                        <div class="text-muted small mt-1 text-center">Current photo</div>
+                      </div>
+                      {% endif %}
+                      
+                      <div class="upload-new">
+                        <div class="input-group">
+                          <input type="file" 
+                                 class="form-control" 
+                                 id="profile_photo" 
+                                 name="profile_photo" 
+                                 accept="image/*">
+                          <label class="input-group-text" for="profile_photo">Upload</label>
+                        </div>
+                        <div class="form-text">Select a new image to update your profile photo</div>
+                      </div>
+                    </div>
+                  </div>
+                <div class="form-group">
+                    <label for="allergies">Allergies</label>
+                    <textarea id="allergies" name="allergies" rows="3">{{ user.profile.allergies if user.profile else '' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Common Chronic Conditions</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_hypertension" name="chronic_conditions_select" value="Hypertension" {% if user.profile and 'Hypertension' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_hypertension">Hypertension</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_diabetes" name="chronic_conditions_select" value="Diabetes" {% if user.profile and 'Diabetes' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_diabetes">Diabetes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_asthma" name="chronic_conditions_select" value="Asthma" {% if user.profile and 'Asthma' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_asthma">Asthma</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_copd" name="chronic_conditions_select" value="COPD" {% if user.profile and 'COPD' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_copd">COPD</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_heart" name="chronic_conditions_select" value="Heart disease" {% if user.profile and 'Heart disease' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_heart">Heart disease</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_arthritis" name="chronic_conditions_select" value="Arthritis" {% if user.profile and 'Arthritis' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_arthritis">Arthritis</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_kidney" name="chronic_conditions_select" value="Chronic kidney disease" {% if user.profile and 'Chronic kidney disease' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_kidney">Chronic kidney disease</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_depression" name="chronic_conditions_select" value="Depression" {% if user.profile and 'Depression' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_depression">Depression</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_anxiety" name="chronic_conditions_select" value="Anxiety" {% if user.profile and 'Anxiety' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_anxiety">Anxiety</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition_thyroid" name="chronic_conditions_select" value="Thyroid disorders" {% if user.profile and 'Thyroid disorders' in user.profile.chronic_conditions %}checked{% endif %}>
+                            <label for="condition_thyroid">Thyroid disorders</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="chronic_conditions_other">Other Chronic Conditions</label>
+                    <textarea id="chronic_conditions_other" name="chronic_conditions_other" rows="2">{{ user.profile.chronic_conditions_other if user.profile and user.profile.chronic_conditions_other else '' }}</textarea>
+                </div>
+                
+                
+                <div class="form-group">
+                    <label for="medications">Current Medications</label>
+                    <textarea id="medications" name="medications" rows="3">{{ user.profile.medications if user.profile else '' }}</textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

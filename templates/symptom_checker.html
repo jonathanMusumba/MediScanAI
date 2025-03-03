@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediScan AI - Symptom Checker</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -58,6 +59,10 @@
         <div id="resultsContainer" class="card" style="display: none;">
             <h2>Analysis Results</h2>
             <div id="diagnosisResults" class="diagnosis-results"></div>
+            <div class="action-buttons">
+                <button id="findHospitalsBtn" class="btn secondary">Find Nearby Hospitals</button>
+                <button id="saveDiagnosisBtn" class="btn primary">Save Diagnosis</button>
+            </div>
         </div>
 
         <div id="hospitalsContainer" class="card" style="display: none;">
@@ -76,6 +81,10 @@
             const hospitalsContainer = document.getElementById('hospitalsContainer');
             const locationStatus = document.getElementById('locationStatus');
             const nearbyHospitals = document.getElementById('nearbyHospitals');
+            const findHospitalsBtn = document.getElementById('findHospitalsBtn');
+            const saveDiagnosisBtn = document.getElementById('saveDiagnosisBtn');
+            
+            let currentDiagnosisId = null;
             
             // Handle form submission
             symptomForm.addEventListener('submit', function(e) {
@@ -101,15 +110,16 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        symptoms: symptoms
+                        symptoms: symptoms,
+                        username: '{{ username if username else "" }}'
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         displayResults(data.results);
-                        // After displaying results, try to find nearby hospitals
-                        findNearbyHospitals();
+                        // Store diagnosis ID for saving
+                        currentDiagnosisId = data.diagnosis_id || '';
                     } else {
                         diagnosisResults.innerHTML = `<div class="error">${data.error || 'An error occurred'}</div>`;
                     }
@@ -158,6 +168,11 @@
                     .join(' ');
             }
             
+            // Handle find hospitals button
+            findHospitalsBtn.addEventListener('click', function() {
+                findNearbyHospitals();
+            });
+            
             // Find nearby hospitals based on user location
             function findNearbyHospitals() {
                 locationStatus.innerHTML = 'Getting your location...';
@@ -170,6 +185,10 @@
                             const longitude = position.coords.longitude;
                             
                             locationStatus.innerHTML = `Location found: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                            
+                            // Store location in localStorage for possible later use
+                            localStorage.setItem('userLatitude', latitude);
+                            localStorage.setItem('userLongitude', longitude);
                             
                             // Call API to find nearby hospitals
                             fetch('/api/hospitals', {
@@ -227,7 +246,41 @@
                 html += '</div>';
                 nearbyHospitals.innerHTML = html;
             }
+            
+            // Handle save diagnosis button
+            saveDiagnosisBtn.addEventListener('click', function() {
+                if (!currentDiagnosisId) {
+                    alert('Diagnosis already saved or cannot be saved.');
+                    return;
+                }
+                
+                // Call API to save diagnosis
+                fetch('/api/save-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        diagnosis_id: currentDiagnosisId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Diagnosis saved successfully! You can view it in your Dashboard.');
+                        // Optionally redirect to dashboard
+                        window.location.href = "{{ url_for('dashboard') }}";
+                    } else {
+                        alert(`Failed to save diagnosis: ${data.error || 'Unknown error'}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to save diagnosis. Please try again later.');
+                });
+            });
         });
     </script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>

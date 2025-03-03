@@ -16,6 +16,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.utils import secure_filename
+
 # Note: In a real implementation, you would use scikit-learn for the ML model
 
 app = Flask(__name__, static_folder="static", template_folder="templates")

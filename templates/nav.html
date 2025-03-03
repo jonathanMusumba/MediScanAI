@@ -12,17 +12,22 @@
         <li><a href="/logout">Logout</a></li>
     </ul>
 </nav>
+
 -->
+
 <nav class="main-nav">
     <div class="nav-logo">
         <a href="/">MediScan AI</a>
     </div>
+    <button class="nav-toggle" aria-label="Toggle navigation"> 
+        <i class="fas fa-bars"></i> 
+    </button>
     <div class="nav-links">
-        {% if logged_in %}
+        {% if 'username' in session %}
             <a href="/dashboard">Dashboard</a>
             <a href="/symptom-checker">Check Symptoms</a>
             <a href="/hospitals">Find Hospitals</a>
-            <li><a href="/history">Medical History</a></li>
+            <a href="/history">Medical History</a>
             <a href="/profile">Profile</a>
             <a href="/logout">Logout</a>
         {% else %}
@@ -31,3 +36,6 @@
         {% endif %}
     </div>
 </nav>
+
+
+

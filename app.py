@@ -1533,7 +1533,42 @@ def admin_delete_admin(username):
         flash('Cannot delete admin or admin not found', 'danger')
     
     return redirect(url_for('admin_admins'))
-
+#change user password
+@app.route('/admin/users/<username>/change-password', methods=['POST'])
+@admin_required  # Ensure this decorator exists or use your authentication method
+def admin_change_user_password(username):
+    """Allow admin to change a user's password"""
+    # Get user data
+    user = get_user(username)
+    if not user:
+        flash('User not found', 'danger')
+        return redirect(url_for('admin_users'))
+    
+    # Validate password
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    if not new_password or not confirm_password:
+        flash('Both password fields are required', 'danger')
+        return redirect(url_for('admin_user_detail', username=username))
+    
+    if new_password != confirm_password:
+        flash('Passwords do not match', 'danger')
+        return redirect(url_for('admin_user_detail', username=username))
+    
+    # Update password using the existing function
+    user_file = os.path.join(USERS_DIR, f"{username}.json")
+    
+    with open(user_file, 'r') as f:
+        user_data = json.load(f)
+    
+    user_data['password'] = generate_password_hash(new_password)
+    
+    with open(user_file, 'w') as f:
+        json.dump(user_data, f)
+    
+    flash(f'Password for {username} has been updated successfully', 'success')
+    return redirect(url_for('admin_user_detail', username=username))
 @app.route('/admin/profile', methods=['GET', 'POST'])
 @admin_required
 def admin_profile():

@@ -1,0 +1,77 @@
+<!-- templates/admin/hospitals.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}MediScan AI - Hospitals Management{% endblock %}
+
+{% block header %}Hospitals Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">All Hospitals</h5>
+        <a href="{{ url_for('admin_add_hospital') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i> Add Hospital
+        </a>
+    </div>
+    <div class="card-body">
+        {% if hospitals %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Specialties</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hospital in hospitals %}
+                    <tr>
+                        <td>{{ hospital.id }}</td>
+                        <td>{{ hospital.name }}</td>
+                        <td>{{ hospital.address }}</td>
+                        <td>{{ hospital.phone }}</td>
+                        <td>{{ hospital.specialties|join(', ') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_edit_hospital', hospital_id=hospital.id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ hospital.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteModal{{ hospital.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Hospital</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete <strong>{{ hospital.name }}</strong>? This action cannot be undone.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('admin_delete_hospital', hospital_id=hospital.id) }}" method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No hospitals found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

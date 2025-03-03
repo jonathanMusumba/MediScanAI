@@ -1,0 +1,75 @@
+<!-- templates/admin/diagnoses.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}MediScan AI - Diagnoses Management{% endblock %}
+
+{% block header %}Diagnoses Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">All Diagnoses</h5>
+        <a href="{{ url_for('admin_export_diagnoses') }}" class="btn btn-success btn-sm">
+            <i class="bi bi-download me-1"></i> Export CSV
+        </a>
+    </div>
+    <div class="card-body">
+        {% if diagnoses %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Disease</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for diagnosis in diagnoses %}
+                    <tr>
+                        <td>{{ diagnosis.id }}</td>
+                        <td>{{ diagnosis.username }}</td>
+                        <td>{{ diagnosis.disease }}</td>
+                        <td>{{ diagnosis.date }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_diagnosis_detail', diagnosis_id=diagnosis.id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ diagnosis.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteModal{{ diagnosis.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Diagnosis</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete this diagnosis? This action cannot be undone.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('admin_delete_diagnosis', diagnosis_id=diagnosis.id) }}" method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No diagnoses found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

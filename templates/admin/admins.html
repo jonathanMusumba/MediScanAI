@@ -1,0 +1,90 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Admin Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Admin Management</h2>
+    <a href="{{ url_for('admin_add_admin') }}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Add Admin
+    </a>
+  </div>
+
+  {% if admins %}
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for admin in admins %}
+            <tr>
+              <td>{{ admin.username }}</td>
+              <td>{{ admin.email }}</td>
+              <td>
+                <span class="badge {% if admin.role == 'superadmin' %}bg-danger{% else %}bg-primary{% endif %}">
+                  {{ admin.role }}
+                </span>
+              </td>
+              <td>{{ admin.created_at }}</td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{{ url_for('admin_edit_admin', username=admin.username) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  {% if admin.username != session.admin_username %}
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ admin.username|replace('.', '_') }}">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modals -->
+  {% for admin in admins %}
+  {% if admin.username != session.admin_username %}
+  <div class="modal fade" id="deleteModal{{ admin.username|replace('.', '_') }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete admin <strong>{{ admin.username }}</strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form action="{{ url_for('admin_delete_admin', username=admin.username) }}" method="POST">
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  
+  {% else %}
+  <div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> No admins found.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

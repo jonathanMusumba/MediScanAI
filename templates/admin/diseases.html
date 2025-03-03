@@ -1,0 +1,87 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Disease Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Disease Management</h2>
+    <a href="{{ url_for('admin_add_disease') }}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Add Disease
+    </a>
+  </div>
+
+  {% if diseases %}
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Disease ID</th>
+              <th>Symptoms</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for disease in diseases %}
+            <tr>
+              <td>{{ disease.id }}</td>
+              <td>
+                {% for symptom in disease.symptoms[:3] %}
+                <span class="badge bg-secondary">{{ symptom }}</span>
+                {% endfor %}
+                {% if disease.symptoms|length > 3 %}
+                <span class="badge bg-secondary">+{{ disease.symptoms|length - 3 }} more</span>
+                {% endif %}
+              </td>
+              <td>{{ disease.description|truncate(50) }}</td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{{ url_for('admin_edit_disease', disease_id=disease.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ disease.id|replace('.', '_') }}">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modals -->
+  {% for disease in diseases %}
+  <div class="modal fade" id="deleteModal{{ disease.id|replace('.', '_') }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete disease <strong>{{ disease.id }}</strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form action="{{ url_for('admin_delete_disease', disease_id=disease.id) }}" method="POST">
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  
+  {% else %}
+  <div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> No diseases found.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

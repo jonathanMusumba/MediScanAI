@@ -1,0 +1,200 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Analytics Dashboard</h2>
+  
+  <div class="row">
+    <!-- Disease Distribution Chart -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title">Disease Distribution</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="diseaseChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Monthly Diagnoses Chart -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title">Monthly Diagnoses</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- User Growth Chart -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title">User Growth</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="userGrowthChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cumulative Users Chart -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title">Cumulative User Growth</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="cumulativeUsersChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Top Diseases Table -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="card-title">Top Diseases</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Disease</th>
+              <th>Count</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set total_diagnoses = disease_counts|sum(attribute='1') %}
+            {% for disease, count in disease_counts[:10] %}
+            <tr>
+              <td>{{ disease }}</td>
+              <td>{{ count }}</td>
+              <td>{{ "%.1f"|format(count / total_diagnoses * 100) }}%</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Disease Distribution Chart
+const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+const diseaseChart = new Chart(diseaseCtx, {
+    type: 'pie',
+    data: {
+        labels: [{% for disease, count in disease_counts[:5] %}'{{ disease }}',{% endfor %} 'Other'],
+        datasets: [{
+            data: [
+                {% for disease, count in disease_counts[:5] %}{{ count }},{% endfor %}
+                {{ disease_counts[5:]|sum(attribute='1') if disease_counts|length > 5 else 0 }}
+            ],
+            backgroundColor: [
+                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+});
+
+// Monthly Diagnoses Chart
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+const monthlyChart = new Chart(monthlyCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for month, count in month_counts %}'{{ month }}',{% endfor %}],
+        datasets: [{
+            label: 'Diagnoses',
+            data: [{% for month, count in month_counts %}{{ count }},{% endfor %}],
+            backgroundColor: '#4e73df',
+            borderColor: '#4e73df',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+const userGrowthChart = new Chart(userGrowthCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for month, count in user_growth %}'{{ month }}',{% endfor %}],
+        datasets: [{
+            label: 'New Users',
+            data: [{% for month, count in user_growth %}{{ count }},{% endfor %}],
+            backgroundColor: '#1cc88a',
+            borderColor: '#1cc88a',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Cumulative Users Chart
+const cumulativeCtx = document.getElementById('cumulativeUsersChart').getContext('2d');
+const cumulativeChart = new Chart(cumulativeCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for month, count in cumulative_users %}'{{ month }}',{% endfor %}],
+        datasets: [{
+            label: 'Total Users',
+            data: [{% for month, count in cumulative_users %}{{ count }},{% endfor %}],
+            backgroundColor: 'rgba(54, 185, 204, 0.2)',
+            borderColor: '#36b9cc',
+            borderWidth: 2,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

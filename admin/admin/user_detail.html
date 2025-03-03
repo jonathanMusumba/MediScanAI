@@ -1,0 +1,103 @@
+<!-- templates/admin/user_detail.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}MediScan AI - User Details{% endblock %}
+
+{% block header %}User Details: {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Created At:</strong> {{ user.created_at }}</p>
+                
+                <div class="d-grid gap-2 mt-3">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                        <i class="bi bi-trash me-2"></i> Delete User
+                    </button>
+                </div>
+                
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete user <strong>{{ user.username }}</strong>? This action cannot be undone.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="{{ url_for('admin_delete_user', username=user.username) }}" method="POST">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Medical Profile</h5>
+            </div>
+            <div class="card-body">
+                {% if user.profile %}
+                    {% for key, value in user.profile.items() %}
+                    <p><strong>{{ key|capitalize }}:</strong> {{ value }}</p>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted">No profile information available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Diagnosis History</h5>
+            </div>
+            <div class="card-body">
+                {% if diagnoses %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Disease</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for diagnosis in diagnoses %}
+                            <tr>
+                                <td>{{ diagnosis.disease }}</td>
+                                <td>{{ diagnosis.date }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin_diagnosis_detail', diagnosis_id=diagnosis.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No diagnosis history found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

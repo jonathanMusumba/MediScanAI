@@ -1,0 +1,49 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}
+  {% if disease %}Edit Disease{% else %}Add Disease{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">
+        {% if disease %}Edit Disease: {{ disease.id }}{% else %}Add New Disease{% endif %}
+      </h5>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label for="id" class="form-label">Disease ID</label>
+          <input type="text" class="form-control" id="id" name="id" value="{{ disease.id if disease else '' }}" {% if disease %}readonly{% endif %} required>
+          <div class="form-text">Use a simple, lowercase identifier (e.g., "flu", "pneumonia")</div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="symptoms" class="form-label">Symptoms</label>
+          <input type="text" class="form-control" id="symptoms" name="symptoms" value="{{ disease.symptoms|join(',') if disease else '' }}" required>
+          <div class="form-text">Enter symptoms as comma-separated values (e.g., "fever,cough,fatigue")</div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="3" required>{{ disease.description if disease else '' }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+          <label for="recommendation" class="form-label">Recommendation</label>
+          <textarea class="form-control" id="recommendation" name="recommendation" rows="3" required>{{ disease.recommendation if disease else '' }}</textarea>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+          <a href="{{ url_for('admin_diseases') }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if disease %}Update Disease{% else %}Add Disease{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

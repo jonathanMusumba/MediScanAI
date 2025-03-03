@@ -1,0 +1,64 @@
+<!-- templates/admin/diagnosis_detail.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}MediScan AI - Diagnosis Details{% endblock %}
+
+{% block header %}Diagnosis Details{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Diagnosis Information</h5>
+    <div>
+      <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteDiagnosisModal">
+        <i class="bi bi-trash me-1"></i> Delete
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>ID:</strong> {{ diagnosis.id }}</p>
+        <p><strong>Username:</strong> {{ diagnosis.username }}</p>
+        <p><strong>Disease:</strong> {{ diagnosis.disease }}</p>
+        <p><strong>Date:</strong> {{ diagnosis.date }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Symptoms:</strong></p>
+        <ul>
+          {% for symptom in diagnosis.symptoms %}
+            <li>{{ symptom }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4">
+      <h6>Recommendation</h6>
+      <div class="alert alert-info">
+        {{ diagnosis.recommendation }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteDiagnosisModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Diagnosis</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this diagnosis? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form action="{{ url_for('admin_delete_diagnosis', diagnosis_id=diagnosis.id) }}" method="POST">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

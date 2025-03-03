@@ -1,0 +1,52 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}
+  {% if admin %}Edit Admin{% else %}Add Admin{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">
+        {% if admin %}Edit Admin: {{ admin.username }}{% else %}Add New Admin{% endif %}
+      </h5>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" value="{{ admin.username if admin else '' }}" {% if admin %}readonly{% endif %} required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" value="{{ admin.email if admin else '' }}" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="password" class="form-label">
+            {% if admin %}New Password (leave blank to keep current){% else %}Password{% endif %}
+          </label>
+          <input type="password" class="form-control" id="password" name="password" {% if not admin %}required{% endif %}>
+        </div>
+        
+        <div class="mb-3">
+          <label for="role" class="form-label">Role</label>
+          <select class="form-select" id="role" name="role">
+            <option value="admin" {% if admin and admin.role == 'admin' %}selected{% endif %}>Admin</option>
+            <option value="superadmin" {% if admin and admin.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+          </select>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+          <a href="{{ url_for('admin_admins') }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if admin %}Update Admin{% else %}Add Admin{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
